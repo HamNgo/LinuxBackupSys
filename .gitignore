@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.coverage
+.pytest_cache/
+*.log
+*.jsonl
+*.db
+*.db-*
+*.key
+*.pem
+/backup.conf
+/server.conf
+/runtime/
+/test-results/
+/.agents
+*AGENTS.MD
+

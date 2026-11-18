@@ -2,7 +2,21 @@
 
 A lightweight, centralized backup and disaster recovery service for Ubuntu, built with Bash, Python, and standard Linux tools.
 
-> **Status:** This README is the initial project plan, not a claim that every feature is already implemented. Features are marked as *core* or *optional*, and the document will be updated as the implementation progresses.
+> **Status:** The MVP is implemented: rsync/SSH backup, versioned snapshots, SHA-256 verification, file/directory restore, retention dry-run/apply, JSONL history, configuration and systemd units. Local Linux tests use real rsync and server processes; two-machine Ubuntu 24.04 deployment and actual scheduled runs still need validation. The two-week roadmap below is the original delivery plan, not a completed-test claim.
+
+Start with [two-machine setup](docs/setup.md), [configuration and CLI](docs/configuration.md), [architecture](docs/architecture.md), [test evidence](docs/testing.md), and the [demo procedure](docs/demo.md).
+
+[Hướng dẫn triển khai bằng tiếng Việt](docs/setup.vi.md)
+
+```bash
+# On Linux, from the checkout:
+bash backup-manager.sh --help
+bash tests/run.sh
+# Generate a NEW configuration template, then edit its placeholders:
+bash backup-manager.sh configure --output /absolute/new-backup.conf
+```
+
+The runtime requires Python 3.11+, Bash, rsync and OpenSSH. The implementation uses full independent snapshots; hard-link deduplication and SQLite remain optional and are not implemented. Only regular files and directories are supported; symlinks and special files are rejected explicitly. Restore always uses a new directory and never overwrites an existing destination.
 
 ## Table of Contents
 
@@ -95,11 +109,11 @@ The initial implementation uses SSH and rsync over the local network. SSH provid
 
 - Each backup run creates a new snapshot.
 - Previous versions are preserved for recovery.
-- rsync `--link-dest` with hard links can avoid duplicating unchanged files when snapshots share a filesystem.
+- _(Optional, not implemented)_ rsync `--link-dest` with hard links can avoid duplicating unchanged files when snapshots share a filesystem. The current MVP stores full independent copies.
 
 ### 4.4 Automated Scheduling
 
-- Recurring backups via Cron or systemd timers.
+- Recurring backups via the supplied systemd service/timer (installation and enablement are explicit deployment steps).
 - Configurable backup frequency.
 - The result of each run is recorded.
 
@@ -126,7 +140,7 @@ The initial implementation uses SSH and rsync over the local network. SSH provid
 - Record backup start and completion times.
 - Record success and failure details.
 - Maintain a searchable history of operations.
-- *(Optional)* Use SQLite for structured metadata if time permits.
+- _(Optional)_ Use SQLite for structured metadata if time permits.
 
 ### 4.9 Configuration and Management Scripts
 
@@ -134,63 +148,54 @@ Scripts let users configure and operate the service without hand-editing many fi
 
 Example configuration file: `/etc/linux-backup/backup.conf`
 
-```bash
-BACKUP_SOURCE="/home/user/Documents"
-BACKUP_DEST="/srv/backups"
-BACKUP_INTERVAL="daily"
-RETENTION_DAYS=7
-COMPRESSION=false
-VERIFY_CHECKSUM=true
+```toml
+CLIENT_ID = "client-b"
+BACKUP_SOURCE = "/home/backup-client/Documents"
+SSH_HOST = "backup-server.example"
+SSH_USER = "backup"
+SSH_IDENTITY = "/home/backup-client/.ssh/linux-backup"
+SSH_KNOWN_HOSTS = "/home/backup-client/.ssh/known_hosts"
+SERVER_PROGRAM = "/opt/linux-backup/server/agent.py"
+SERVER_CONFIG = "/etc/linux-backup/server.conf"
+LOG_FILE = "/home/backup-client/.local/state/linux-backup/history.jsonl"
+RESTORE_ROOT = "/home/backup-client/Restored"
+COMPRESSION = false
+VERIFY_CHECKSUM = true
 ```
 
-Adjust paths, account names, and values for the two computers used in the demonstration.
+This is TOML data, never a sourced shell script. Adjust paths, account names and values for the two computers. Server storage and retention are in [server.conf.example](server/server.conf.example); scheduling is in [linux-backup.timer](deploy/linux-backup.timer). See the [complete client template](client/client.conf.example).
 
 ## 5. Technology Stack
 
-| Technology | Purpose |
-|---|---|
-| Ubuntu 24.04 LTS | Operating system on both computers |
-| OpenSSH Server | Secure remote access |
-| SSH | Client-server authentication and communication |
-| rsync | Efficient file transfer and snapshot creation |
-| Bash | Backup, restore, cleanup, and configuration scripts |
-| Python | Optional management logic and database operations |
-| SQLite | Backup metadata and history |
-| Cron / systemd timers | Automatic scheduling |
-| `sha256sum` | File integrity verification |
-| Git | Source code version control |
+| Technology            | Purpose                                             |
+| --------------------- | --------------------------------------------------- |
+| Ubuntu 24.04 LTS      | Operating system on both computers                  |
+| OpenSSH Server        | Secure remote access                                |
+| SSH                   | Client-server authentication and communication      |
+| rsync                 | Efficient file transfer and snapshot creation       |
+| Bash                  | Backup, restore, cleanup, and configuration scripts |
+| Python 3.11+          | Standard-library management, manifest and path validation |
+| JSON / JSONL          | Snapshot metadata and operation history             |
+| systemd timer         | Automatic scheduling (supplied, not auto-enabled)    |
+| SHA-256 / hashlib     | File integrity verification; sha256sum for manual demo |
+| Git                   | Source code version control                         |
 
 The project stays lightweight. Docker, Kubernetes, and a web dashboard are not required for the core implementation.
 
 ## 6. Project Structure
 
-Suggested layout; files may be reorganized as implementation progresses.
+Implemented layout (runtime backups and history stay outside Git):
 
 ```text
-linux-backup-system/
-├── client/
-│   ├── backup.sh
-│   ├── restore.sh
-│   └── client.conf
-├── server/
-│   ├── receive_backup.sh
-│   ├── manage_snapshots.sh
-│   ├── cleanup.sh
-│   └── server.conf
-├── common/
-│   ├── verify.sh
-│   ├── configure.sh
-│   └── backup-manager.sh
-├── database/
-│   └── backup_history.db
-├── logs/
-├── tests/
-│   ├── test_backup.sh
-│   ├── test_restore.sh
-│   └── test_integrity.sh
-├── docs/
-│   ├── architecture.md
-│   └── configuration.md
+LinuxBackupSys/
+├── backup-manager.sh          # unified Bash entrypoint
+├── client/                    # SSH/rsync workflows and client config template
+├── server/                    # SSH agent, storage, retention and server template
+├── common/                    # CLI, safe config/path handling, manifest, protocol
+├── deploy/                    # explicit code installer and systemd units
+├── tests/                     # unittest fixtures, real rsync, optional real SSH
+├── docs/                      # architecture, config, setup, tests and demo
+├── .github/workflows/test.yml # Ubuntu 24.04 CI definition
 └── README.md
 ```
 
@@ -199,21 +204,23 @@ linux-backup-system/
 A unified management script provides a simple command-line interface.
 
 ```bash
-./backup-manager.sh status
-./backup-manager.sh backup
-./backup-manager.sh restore
-./backup-manager.sh configure
+bash backup-manager.sh --config /etc/linux-backup/backup.conf status
+bash backup-manager.sh --config /etc/linux-backup/backup.conf backup
+bash backup-manager.sh --config /etc/linux-backup/backup.conf restore SNAPSHOT_ID --path 'reports/report.txt'
+bash backup-manager.sh --config /etc/linux-backup/backup.conf configure --check
 ```
 
 Additional operations:
 
 ```bash
-./backup-manager.sh history
-./backup-manager.sh verify
-./backup-manager.sh cleanup
+bash backup-manager.sh --config /etc/linux-backup/backup.conf history --limit 20
+bash backup-manager.sh --config /etc/linux-backup/backup.conf verify SNAPSHOT_ID
+bash backup-manager.sh --config /etc/linux-backup/backup.conf cleanup --dry-run
+# Only after reviewing candidates:
+bash backup-manager.sh --config /etc/linux-backup/backup.conf cleanup --apply
 ```
 
-Final command names and options will match the implemented scripts.
+Commands print JSON and return nonzero on failures. Restore requires a completed snapshot ID; its destination must be new. Cleanup retains the newest successful snapshot and only expires others older than the configured number of 24-hour periods. See [configuration.md](docs/configuration.md) for paths, exit codes and exact semantics.
 
 ## 8. Team Responsibilities
 
@@ -411,14 +418,14 @@ Suggested presentation split:
 
 ## 10. Key Milestones
 
-| Deadline | Expected result |
-|---|---|
-| End of Day 3 | Client and server communicate; basic backup works |
-| End of Day 7 | Versioned backup, retention, verification, and basic restore work |
-| End of Day 10 | Integrated end-to-end system works |
-| End of Day 11 | Reliability and failure tests completed |
-| End of Day 13 | Report and live demonstration ready |
-| Day 14 | Final presentation |
+| Deadline      | Expected result                                                   |
+| ------------- | ----------------------------------------------------------------- |
+| End of Day 3  | Client and server communicate; basic backup works                 |
+| End of Day 7  | Versioned backup, retention, verification, and basic restore work |
+| End of Day 10 | Integrated end-to-end system works                                |
+| End of Day 11 | Reliability and failure tests completed                           |
+| End of Day 13 | Report and live demonstration ready                               |
+| Day 14        | Final presentation                                                |
 
 ## 11. Demonstration Plan
 
@@ -470,33 +477,33 @@ These are optional and must not delay the core demonstration.
 - [ ] Confirm both computers can reach each other over the network.
 - [ ] Install and test SSH.
 - [ ] Install and test rsync.
-- [ ] Create the Git repository and project folders.
+- [x] Create the Git repository and project folders.
 
 ### Backup Functionality
 
 - [ ] Configure SSH key authentication.
 - [ ] Create the server backup storage directory.
-- [ ] Implement basic backup transfer.
-- [ ] Implement versioned snapshots.
+- [x] Implement basic backup transfer.
+- [x] Implement versioned snapshots.
 - [ ] Configure automatic scheduling.
-- [ ] Implement backup logs.
-- [ ] Implement backup history.
+- [x] Implement backup logs.
+- [x] Implement backup history.
 
 ### Recovery and Reliability
 
-- [ ] Implement file restoration.
-- [ ] Implement directory restoration.
-- [ ] Implement SHA-256 verification.
-- [ ] Implement retention and cleanup.
-- [ ] Test recovery from an older snapshot.
+- [x] Implement file restoration.
+- [x] Implement directory restoration.
+- [x] Implement SHA-256 verification.
+- [x] Implement retention and cleanup.
+- [x] Test recovery from an older snapshot (local Linux fixture).
 - [ ] Test network and authentication failures.
-- [ ] Confirm restore tests do not overwrite important originals.
+- [x] Confirm restore tests refuse existing destinations and preserve fixture sources.
 
 ### Customization and Submission
 
-- [ ] Implement a configuration file.
-- [ ] Implement a configuration management script.
-- [ ] Implement a unified command-line interface.
+- [x] Implement configuration templates and strict parser.
+- [x] Implement configuration generation and validation.
+- [x] Implement a unified command-line interface.
 - [ ] Complete integration testing on both computers.
 - [ ] Prepare screenshots and test results.
 - [ ] Complete the English report.
@@ -505,4 +512,4 @@ These are optional and must not delay the core demonstration.
 
 ---
 
-*Update the architecture, commands, configuration examples, and feature list as the implementation develops, and clearly distinguish completed features from planned or optional ones in the final report.*
+_Update the architecture, commands, configuration examples, and feature list as the implementation develops, and clearly distinguish completed features from planned or optional ones in the final report._

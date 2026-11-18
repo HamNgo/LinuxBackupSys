@@ -1,0 +1,15 @@
+name: Linux backup tests
+on: [push, pull_request]
+jobs:
+  ubuntu:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test tools
+        run: sudo apt-get update && sudo apt-get install -y rsync openssh-server shellcheck
+      - name: Syntax, lint and isolated filesystem workflows
+        run: bash tests/run.sh
+      - name: Real SSH against a temporary localhost daemon
+        run: |
+          sudo install -d -m 0755 /run/sshd
+          sudo env LINUX_BACKUP_TEST_SSH=1 python3 -m unittest tests.test_ssh -v

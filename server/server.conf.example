@@ -1,0 +1,5 @@
+# Readable by the dedicated backup account; not group/other writable.
+CLIENT_ID = "client-b"
+STORAGE_ROOT = "/srv/linux-backup"
+RETENTION_DAYS = 7
+TIMEOUT_SECONDS = 3600

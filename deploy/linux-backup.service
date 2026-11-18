@@ -1,0 +1,18 @@
+[Unit]
+Description=LinuxBackupSys backup and retention
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=backup-client
+Group=backup-client
+WorkingDirectory=/opt/linux-backup
+Environment=PATH=/usr/bin:/bin
+ExecStart=/bin/bash /opt/linux-backup/client/scheduled-backup.sh /etc/linux-backup/backup.conf
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+TimeoutStartSec=3h
+StandardOutput=journal
+StandardError=journal

@@ -1,0 +1,15 @@
+# TOML, not a shell script. Use absolute paths; replace all placeholders.
+CLIENT_ID = "client-b"
+BACKUP_SOURCE = "/home/backup-client/Documents"
+SSH_HOST = "backup-server.example"
+SSH_USER = "backup"
+SSH_PORT = 22
+SSH_IDENTITY = "/home/backup-client/.ssh/linux-backup"
+SSH_KNOWN_HOSTS = "/home/backup-client/.ssh/known_hosts"
+SERVER_PROGRAM = "/opt/linux-backup/server/agent.py"
+SERVER_CONFIG = "/etc/linux-backup/server.conf"
+LOG_FILE = "/home/backup-client/.local/state/linux-backup/history.jsonl"
+RESTORE_ROOT = "/home/backup-client/Restored"
+VERIFY_CHECKSUM = true
+COMPRESSION = false
+TIMEOUT_SECONDS = 3600
