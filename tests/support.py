@@ -16,7 +16,8 @@ REPO = Path(__file__).resolve().parents[1]
 
 class Fixture(unittest.TestCase):
     def setUp(self):
-        self.temporary = tempfile.TemporaryDirectory(prefix="linux-backup-test-")
+        tmp_dir = "/tmp" if os.name == "posix" and Path("/tmp").is_dir() else None
+        self.temporary = tempfile.TemporaryDirectory(dir=tmp_dir, prefix="linux-backup-test-")
         self.addCleanup(self.temporary.cleanup)
         self.base = Path(self.temporary.name).resolve()
         self.source = self.base / "source with spaces"

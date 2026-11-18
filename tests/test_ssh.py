@@ -45,9 +45,9 @@ class SSHIntegrationTests(Fixture):
         sshd_cfg.write_text(
             f'Port {port}\nListenAddress 127.0.0.1\nHostKey "{host_key}"\n'
             f'PidFile "{self.base / "sshd.pid"}"\nAuthorizedKeysFile "{authorized}"\n'
-            f'AllowUsers {user}\nPermitRootLogin prohibit-password\nPasswordAuthentication no\n'
-            'KbdInteractiveAuthentication no\nUsePAM yes\nStrictModes yes\nPermitUserRC no\n'
-            'AllowTcpForwarding no\nX11Forwarding no\nLogLevel ERROR\n')
+            f'AllowUsers {user}\nPermitRootLogin yes\nPasswordAuthentication no\n'
+            'KbdInteractiveAuthentication no\nUsePAM no\nStrictModes no\nPermitUserRC no\n'
+            'AllowTcpForwarding no\nX11Forwarding no\nLogLevel DEBUG\n')
         subprocess.run(["/usr/sbin/sshd", "-t", "-f", str(sshd_cfg)], check=True)
         self.sshd_log = (self.base / "sshd.log").open("wb")
         self.addCleanup(self.sshd_log.close)
