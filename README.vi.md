@@ -8,6 +8,8 @@ LinuxBackupSys dùng Bash, Python và các công cụ Linux để sao lưu file 
 
 Bắt đầu với [hướng dẫn triển khai bằng tiếng Việt](docs/setup.vi.md). Tài liệu đi kèm gồm [cấu hình và CLI](docs/configuration.md), [kiến trúc](docs/architecture.md) và [kịch bản demo](docs/demo.md).
 
+Nếu máy chủ Ubuntu và máy khách Arch ở hai mạng Internet khác nhau, dùng [hướng dẫn cài Tailscale và kiểm thử Ubuntu–Arch](docs/setup-tailscale.vi.md).
+
 ```bash
 # Chạy từ thư mục gốc của dự án trên Linux
 bash backup-manager.sh --help

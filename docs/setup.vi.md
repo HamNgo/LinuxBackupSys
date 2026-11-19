@@ -2,6 +2,8 @@
 
 [English version](setup.md)
 
+Nếu máy Ubuntu và máy Arch Linux ở hai mạng Internet khác nhau, xem [hướng dẫn triển khai và kiểm thử qua Tailscale](setup-tailscale.vi.md).
+
 Hướng dẫn dùng hai máy Ubuntu 24.04 LTS trong cùng mạng LAN. Chép cùng một phiên bản mã nguồn lên cả hai máy và chạy các lệnh cài mã từ thư mục gốc của dự án.
 
 | Máy | Vai trò | Tài khoản và đường dẫn trong ví dụ |
