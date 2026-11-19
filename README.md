@@ -1,5 +1,7 @@
 # Centralized Linux Backup and Disaster Recovery Service
 
+[Tiếng Việt](README.vi.md)
+
 A lightweight, centralized backup and disaster recovery service for Ubuntu, built with Bash, Python, and standard Linux tools.
 
 > **Status:** The MVP is implemented: rsync/SSH backup, versioned snapshots, SHA-256 verification, file/directory restore, retention dry-run/apply, JSONL history, configuration and systemd units. Local Linux tests use real rsync and server processes; two-machine Ubuntu 24.04 deployment and actual scheduled runs still need validation. The two-week roadmap below is the original delivery plan, not a completed-test claim.
