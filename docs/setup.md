@@ -2,6 +2,8 @@
 
 [Đọc hướng dẫn bằng tiếng Việt](setup.vi.md)
 
+To try the desktop client and server together on one Arch Linux guest, follow the [local VirtualBox walkthrough (Vietnamese)](setup-arch-local.vi.md).
+
 These are deployment instructions, not actions already executed. Use Ubuntu
 24.04 LTS on machine A (server) and machine B (client). Replace example usernames,
 hostname and paths with the lab's values. No IP or secret is embedded in the code.
@@ -122,6 +124,8 @@ On machine B, sign in to the graphical desktop as the account that owns the back
 | --- | --- |
 | Ubuntu | `sudo apt install python3-tk` |
 | Arch Linux | `sudo pacman -S --needed tk` |
+
+Run `python3 -m tkinter` from a terminal in the graphical session. A small Tk window confirms that Python can load Tk and open a window. Close it to continue.
 
 From the checkout or the installed project directory, run the following as your ordinary desktop user.
 

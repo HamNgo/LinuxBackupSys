@@ -2,6 +2,8 @@
 
 [English version](setup.md)
 
+Nếu bạn chỉ có một máy ảo Arch Linux trong VirtualBox, máy đó có thể chạy cả giao diện và kho thử qua SSH tại `127.0.0.1`. [Chạy thử cục bộ trên Arch](setup-arch-local.vi.md)
+
 Nếu máy Ubuntu và máy Arch Linux ở hai mạng Internet khác nhau, xem [hướng dẫn triển khai và kiểm thử qua Tailscale](setup-tailscale.vi.md).
 
 Hướng dẫn dùng hai máy Ubuntu 24.04 LTS trong cùng mạng LAN. Chép cùng một phiên bản mã nguồn lên cả hai máy và chạy các lệnh cài mã từ thư mục gốc của dự án.
@@ -201,6 +203,7 @@ systemctl list-timers --all linux-backup.timer
 
 | Hiện tượng | Cách kiểm tra |
 | --- | --- |
+| Trên Arch, mở GUI báo thiếu `libtk8.6.so` | Chạy `sudo pacman -Syu tk` để cập nhật hệ thống và cài lại thư viện Tk. Sau đó chạy `python3 -m tkinter` trong phiên desktop và kiểm tra cửa sổ Tk có mở được. |
 | SSH báo `Permission denied (publickey)` | Chạy lại phép thử SSH bằng đúng tài khoản ở máy B. Kiểm tra quyền khóa riêng `0600` và chủ sở hữu `authorized_keys` trên máy A |
 | SSH báo `Host key verification failed` | Đối chiếu địa chỉ, cổng, file `SSH_KNOWN_HOSTS` và fingerprint lấy từ máy A trước khi cập nhật khóa tin cậy |
 | Backup thất bại hoặc mất kết nối | Xem `history --local`, `history` và `status`. Một snapshot có thể đã được công bố trước khi mất phản hồi. Nếu `status` có ID đó, chạy `verify` trước khi thử lại |

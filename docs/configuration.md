@@ -50,6 +50,13 @@ Source must be separate from key, known-hosts, logs and restore root. Source may
 not overlap server storage when both roles run on the same Linux instance. Use a
 dedicated subtree; backing up `/` or the service account's entire home is unsuitable.
 
+In the Arch loopback lab, set `SSH_HOST` to `127.0.0.1`. The same guest holds
+both configs. `--config` selects the client file. When the client starts
+`server/agent.py` over SSH, it passes the file named in `SERVER_CONFIG`.
+Enter literal absolute paths in the TOML. A new terminal tab starts a new shell
+and may have no value for `$lab`.
+[Single-VM Arch configuration and tab recovery (Vietnamese)](setup-arch-local.vi.md)
+
 SSH uses `-F /dev/null`, strict host-key checking, batch mode and identities-only
 authentication. It does not load personal SSH configuration, ProxyCommand or jump
 host settings. Prepare keys/known-hosts for the exact account running the timer.
@@ -78,10 +85,12 @@ package, SSH key or system service is created by the runtime.
 
 ## Management commands
 
-All commands print JSON results to stdout; errors and rsync output go to stderr.
-Put the global `--config` option **before** the command.
+Data and configuration commands print JSON to stdout. Errors and rsync output
+go to stderr. The `gui` command opens an interactive window. Put the global
+`--config` option **before** the command.
 
 ```bash
+bash backup-manager.sh --config /etc/linux-backup/backup.conf gui
 bash backup-manager.sh --config /etc/linux-backup/backup.conf status
 bash backup-manager.sh --config /etc/linux-backup/backup.conf backup
 bash backup-manager.sh --config /etc/linux-backup/backup.conf verify SNAPSHOT_ID

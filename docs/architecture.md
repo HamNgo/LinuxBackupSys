@@ -1,12 +1,21 @@
 # Implementation architecture
 
-The MVP targets one Ubuntu client and one Ubuntu server. Python 3.11+ standard
-library implements the state machine; Bash exposes the CLI and scheduled job;
-rsync performs transfers over OpenSSH. There is no database or daemon to run.
+The deployment target is one Ubuntu client and one Ubuntu server. The Python
+3.11+ standard library implements the backup and recovery operations. Bash
+provides the CLI and scheduled job, and rsync transfers data over OpenSSH. The
+SSH server starts the project's server agent on demand.
+
+For a single-VM demonstration, the desktop client and server can run in the same
+Arch Linux guest. The client connects to `127.0.0.1` through OpenSSH. The source,
+storage and restore directories are separate, but they share the guest's virtual
+disk. Losing that disk can also destroy every snapshot in the demonstration.
+[Single-VM Arch walkthrough (Vietnamese)](setup-arch-local.vi.md)
 
 ## Entrypoints
 
 - Client: `bash backup-manager.sh --config /absolute/backup.conf COMMAND`.
+- The `gui` command opens the Tk desktop client. It runs data operations through
+  the same CLI in a background thread.
 - Server initialization: `python3 server/agent.py --config /absolute/server.conf init`.
 - `server/agent.py session` and `rsync` are internal SSH protocol commands.
 - `client/scheduled-backup.sh CONFIG` runs backup, then retention only on success.
@@ -77,7 +86,10 @@ JSON escaping supports spaces, Unicode, newlines, quotes and shell characters in
 valid UTF-8 data filenames. Duplicate keys, absolute paths, traversal and missing parents are
 rejected. The manifest and control protocol have a 64 MiB message limit.
 
-Restore first verifies the existing server baseline while holding a shared lock.
+The desktop file picker calls `list-files` to read direct children from the
+selected snapshot's stored manifest. A file can still be selected after it has
+been renamed or removed from the source. Restore then verifies the existing
+server baseline while holding a shared lock.
 The selected file or directory is transferred into a new sibling staging folder
 on the client and checked against the selected portion of that same manifest.
 Selecting `a/` never selects `ab/`. A file is restored by basename; a directory

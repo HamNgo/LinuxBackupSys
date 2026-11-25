@@ -1,5 +1,7 @@
 # Kiểm thử LinuxBackupSys giữa Ubuntu và Arch qua Tailscale
 
+Nếu chỉ có một máy ảo Arch, bạn có thể thử hai vai trò qua `127.0.0.1` ngay trong máy ảo. [Hướng dẫn thử cục bộ trên Arch](setup-arch-local.vi.md)
+
 **Máy A** chạy Ubuntu 24.04 LTS, giữ kho sao lưu và chạy OpenSSH Server. **Máy B** chạy Arch Linux, giữ dữ liệu mẫu và chạy các lệnh backup, verify, restore. Hai máy có thể dùng hai mạng Internet khác nhau. Tailscale tạo đường kết nối riêng để máy Arch truy cập OpenSSH trên Ubuntu qua TCP 22 mà không cần chuyển tiếp cổng trên router.
 
 Chuẩn bị quyền `sudo` trên hai máy, tài khoản có thể tham gia cùng mạng Tailscale (*tailnet*) và cùng một phiên bản mã nguồn LinuxBackupSys. Các lệnh dưới đây dùng Bash. Dùng kho và cấu hình dành riêng cho bài thử để phân biệt snapshot mẫu với dữ liệu vận hành.
@@ -210,6 +212,8 @@ Mở **LinuxBackupSys** từ menu ứng dụng. Bạn có thể sao lưu nguồn
 
 Chạy các lệnh sau trên **Arch**. Tiếp tục từng bước sau khi lệnh trước thành công. Trường `snapshot_id` trong mỗi kết quả `backup` là ID cần nhập khi được hỏi.
 
+Nếu đã mở tab Terminal mới, quay lại tab Bash đã tạo bài thử. Khi biến `demo_root` rỗng, đường dẫn `"$demo_root/source"` trở thành `/source`. Nếu đã đóng tab cũ, gán lại `demo_root` bằng đường dẫn được in ở bước 2, kiểm tra `ls "$demo_root/source/reports"`, rồi khai báo lại mảng `backup_cli` như ở bước 4. Dùng `status` để lấy lại ID các phiên đã tạo.
+
 ### Tạo hai phiên có nội dung khác nhau
 
 ```bash
@@ -221,7 +225,7 @@ read -r -p 'Nhập snapshot_id của phiên 1: ' snapshot_v1
 Phiên 1 cần có `transfer: complete`, `verification: verified` và `publication: complete` trong JSON. Lệnh `verify` cần trả `"verified": true`.
 
 ```bash
-printf 'Phien ban 2\n' > "$demo_root/source/reports/bao-cao.txt"
+printf 'Phien ban 2\n' > "${demo_root:?Hãy khôi phục biến demo_root ở bước 2}/source/reports/bao-cao.txt"
 "${backup_cli[@]}" backup
 read -r -p 'Nhập snapshot_id của phiên 2: ' snapshot_v2
 "${backup_cli[@]}" verify "$snapshot_v2"

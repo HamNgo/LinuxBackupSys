@@ -42,6 +42,24 @@ test daemon is test-only; real deployment uses the dedicated non-root account.
 GitHub Actions is configured for Ubuntu 24.04, ShellCheck, the local suite under Xvfb and the
 optional localhost SSH test. Adding the workflow is not evidence of a CI run.
 
+## Manual acceptance on one Arch VM
+
+Use the [Arch Linux desktop walkthrough (Vietnamese)](setup-arch-local.vi.md)
+for an interactive run with OpenSSH on `127.0.0.1`. Record the two completed
+snapshot IDs. Select the older one, restore its file into a new directory, and
+compare the bytes with an independent copy of version one. Check that the file
+in the source still contains version two. Record the SSH and checksum results
+from the guest. Tk opening a window confirms that the display works. A
+successful restore additionally exercises the configured SSH connection,
+storage and transfer. A second machine is needed to test the LAN or Tailscale
+connection between hosts.
+
+The CLI sequence from the walkthrough was also exercised on Ubuntu 26.04.1
+under WSL2 using the test fixture's temporary loopback SSH server and keys.
+Two backups of `ghichu.txt` completed, restoring the first snapshot returned
+the original bytes, and the source still contained version two. The Arch
+package installation and VirtualBox desktop steps still need an Arch guest run.
+
 ## Desktop verification (2026-11-25)
 
 On Ubuntu WSL, the native restore dialog was used to browse a nested directory

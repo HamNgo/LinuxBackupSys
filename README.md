@@ -10,6 +10,8 @@ Start with [two-machine setup](docs/setup.md), [configuration and CLI](docs/conf
 
 [Hướng dẫn triển khai bằng tiếng Việt](docs/setup.vi.md)
 
+With one Arch Linux VM in VirtualBox, you can run both roles in the guest and restore an older file through the desktop app. [Single-VM Arch walkthrough (Vietnamese)](docs/setup-arch-local.vi.md)
+
 On a Linux client with a graphical desktop, open **LinuxBackupSys** from the applications menu to back up, browse snapshots, verify or restore files, read history and preview retention. Install the optional Tk package and menu entry once under the account that runs backups. [Desktop setup](docs/setup.md#desktop-client)
 
 ```bash

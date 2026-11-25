@@ -1,8 +1,11 @@
 # Repeatable 10–15 minute demo
 
-Use disposable data and a dedicated demonstration config/client storage. Complete
-[setup](setup.md) first and verify noninteractive SSH as the actual job account.
-Do not point these commands at personal data. No demo evidence is pre-generated.
+Use disposable data and a dedicated demonstration config and storage directory.
+For **one Arch Linux VM**, follow the [local desktop demo (Vietnamese)](setup-arch-local.vi.md)
+from setup through recovery. It creates its own test file and shows how to reopen
+the same profile in a new terminal. For **two machines**, complete the
+[two-machine setup](setup.md) and verify noninteractive SSH as the job account
+before running the example below.
 
 1. Create an isolated client directory and set `BACKUP_SOURCE` to that exact path:
 
@@ -40,8 +43,9 @@ Do not point these commands at personal data. No demo evidence is pre-generated.
    python3 -m unittest tests.test_core.StoreTests.test_retention_boundary_latest_and_dry_run_apply -v
    ```
 
-9. Show the timer's next run and journal evidence on B. Capture actual output for
-   the report. A test without two separate hosts must be labeled local integration.
+9. If the timer has been configured, show its next run and the journal entry for
+   an actual scheduled job on B. For a manual run, record the two snapshot IDs
+   and the restored checksum. Label a run over `127.0.0.1` as local integration.
 
 To reset, create a fresh temporary demo root and config. Review the previous root
 manually before removing it; the demo does not issue recursive deletion commands.

@@ -4,9 +4,11 @@
 
 LinuxBackupSys dùng Bash, Python và các công cụ Linux để sao lưu file và thư mục từ máy khách sang máy chủ trong mạng LAN. Mỗi lần sao lưu thành công tạo một bản theo phiên (*snapshot*) để có thể khôi phục dữ liệu cũ.
 
-> **Trạng thái:** Phiên bản MVP đã triển khai sao lưu qua rsync/SSH, snapshot theo phiên, xác minh SHA-256, khôi phục file và thư mục, dọn bản hết hạn, lịch sử JSONL, cấu hình TOML và các tệp systemd. Kiểm thử cục bộ trên WSL Ubuntu 26.04.1 ghi nhận 42 ca đạt và 1 ca SSH được bỏ qua. Việc tích hợp qua LAN và chạy theo lịch trên hai máy đích còn cần xác nhận. [Kết quả kiểm thử](docs/testing.md)
+> **Trạng thái:** Phiên bản MVP đã triển khai sao lưu qua rsync/SSH, snapshot theo phiên, xác minh SHA-256, khôi phục file và thư mục, dọn bản hết hạn, lịch sử JSONL, cấu hình TOML và các tệp systemd. Bài thử trên Ubuntu WSL đã khôi phục được tệp tiếng Việt từ phiên cũ bằng giao diện. Một bài thử riêng đã kiểm tra truyền dữ liệu qua OpenSSH tại `127.0.0.1`. Việc tích hợp qua LAN và chạy theo lịch trên hai máy đích còn cần xác nhận. [Kết quả kiểm thử](docs/testing.md)
 
 Bắt đầu với [hướng dẫn triển khai bằng tiếng Việt](docs/setup.vi.md). Tài liệu đi kèm gồm [cấu hình và CLI](docs/configuration.md), [kiến trúc](docs/architecture.md) và [kịch bản demo](docs/demo.md).
+
+Nếu bạn chỉ có một máy ảo Arch Linux trong VirtualBox, có thể thử sao lưu và khôi phục bằng giao diện qua SSH nội bộ. [Chạy thử trên một máy Arch](docs/setup-arch-local.vi.md)
 
 Nếu máy chủ Ubuntu và máy khách Arch ở hai mạng Internet khác nhau, dùng [hướng dẫn cài Tailscale và kiểm thử Ubuntu–Arch](docs/setup-tailscale.vi.md).
 
