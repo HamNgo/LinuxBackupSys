@@ -85,6 +85,7 @@ Put the global `--config` option **before** the command.
 bash backup-manager.sh --config /etc/linux-backup/backup.conf status
 bash backup-manager.sh --config /etc/linux-backup/backup.conf backup
 bash backup-manager.sh --config /etc/linux-backup/backup.conf verify SNAPSHOT_ID
+bash backup-manager.sh --config /etc/linux-backup/backup.conf list-files SNAPSHOT_ID --path 'reports'
 bash backup-manager.sh --config /etc/linux-backup/backup.conf restore SNAPSHOT_ID
 bash backup-manager.sh --config /etc/linux-backup/backup.conf restore SNAPSHOT_ID --path 'reports/annual.txt' --destination /home/backup-client/Restored/annual
 bash backup-manager.sh --config /etc/linux-backup/backup.conf history --limit 20 --operation backup

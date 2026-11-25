@@ -114,6 +114,27 @@ Verify and restore the returned snapshot ID before trusting the installation.
 Check that storage is on a local Linux filesystem, both hosts have correct UTC
 time, and free space is sufficient for full copies.
 
+### Desktop client
+
+On machine B, sign in to the graphical desktop as the account that owns the backup SSH key. Install Tk support once using the package for your distribution.
+
+| Client system | Command |
+| --- | --- |
+| Ubuntu | `sudo apt install python3-tk` |
+| Arch Linux | `sudo pacman -S --needed tk` |
+
+From the checkout or the installed project directory, run the following as your ordinary desktop user.
+
+```bash
+python3 deploy/install-desktop.py
+```
+
+Open the applications menu and search for **LinuxBackupSys**. Choose your client TOML file, for example `/etc/linux-backup/backup.conf`. To make the menu open a specific config every time, run the installer with `--config /absolute/path/backup.conf`. The entry points to this copy of the project. If you move the checkout, rerun the installer from its new location. To open the window directly from the project's root directory, run `bash backup-manager.sh --config /absolute/path/backup.conf gui`.
+
+The window uses Vietnamese labels. You can open an existing client configuration or fill in the configuration form and save a new copy. Use the same SSH identity, verified known-hosts file and initialized server storage as above. Refresh the snapshot list, start a backup, then select a completed snapshot to verify or restore. The result identifies the new restore destination. History includes local and server events. The retention view previews the cleanup policy. Use the systemd setup below to manage the schedule.
+
+In the restore dialog, choose **Duyệt phiên…** to browse the selected snapshot, including files that have since disappeared from the source. Select a file or directory, or leave the selection empty to restore the whole snapshot. Browsing requires a server version that supports `list-files`. With an older agent you can still type the relative path.
+
 ## 5. Enable the chosen scheduler on B
 
 The project implements **systemd timer only**. Review `User`, `Group`, program and

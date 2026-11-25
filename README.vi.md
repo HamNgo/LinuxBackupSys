@@ -10,6 +10,8 @@ Bắt đầu với [hướng dẫn triển khai bằng tiếng Việt](docs/setu
 
 Nếu máy chủ Ubuntu và máy khách Arch ở hai mạng Internet khác nhau, dùng [hướng dẫn cài Tailscale và kiểm thử Ubuntu–Arch](docs/setup-tailscale.vi.md).
 
+Trên máy khách có môi trường đồ họa, bạn có thể mở **LinuxBackupSys** từ menu ứng dụng để sao lưu, chọn phiên khôi phục, kiểm tra SHA-256, xem lịch sử và xem trước danh sách hết hạn. [Cài giao diện trên máy khách](docs/setup.vi.md#giao-diện-trên-máy-khách)
+
 ```bash
 # Chạy từ thư mục gốc của dự án trên Linux
 bash backup-manager.sh --help

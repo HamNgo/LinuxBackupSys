@@ -16,6 +16,19 @@ from tests.support import Fixture, LocalTransport, REPO
 
 @unittest.skipUnless(os.name == "posix" and shutil.which("rsync"), "Linux and rsync required")
 class WorkflowTests(Fixture):
+    def test_browse_only_direct_children_of_selected_snapshot(self):
+        self.data()
+        sid = self.client.execute("backup")["snapshot_id"]
+        (self.source / "sub" / "unicode tiếng Việt.txt").unlink()
+        listing = self.client.execute("list-files", snapshot_id=sid, path="sub")
+        self.assertEqual(listing, {"path": "sub", "entries": [{"name": "unicode tiếng Việt.txt", "type": "file"}]})
+        root = self.client.execute("list-files", snapshot_id=sid)
+        self.assertEqual([row["name"] for row in root["entries"][:3]], ["empty dir", "sub", "submarine"])
+        self.assertEqual(self.client.execute("list-files", snapshot_id=sid, path="empty dir")["entries"], [])
+        for invalid in ("../outside", ".hidden", "missing"):
+            with self.subTest(invalid=invalid), self.assertRaises(BackupError):
+                self.client.execute("list-files", snapshot_id=sid, path=invalid)
+
     def setUp(self):
         super().setUp()
         self.transport = LocalTransport(self.client_cfg, self.base)

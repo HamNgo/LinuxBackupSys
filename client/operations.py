@@ -86,8 +86,10 @@ class Client:
                                                            "source_verification": first["source_verification"]}
                 else:
                     result = first["result"]
+            logged_result = ({"path": result["path"], "count": len(result["entries"]), "snapshot_id": options["snapshot_id"]}
+                             if operation == "list-files" else result)
             audit(log, run_id=run_id, operation=operation, status="success", client_id=self.cfg["CLIENT_ID"],
-                  published=published, result=result)
+                  published=published, result=logged_result)
             return result
         except (BackupError, OSError, ValueError, KeyError) as exc:
             details = {"error": str(exc), "published": published,

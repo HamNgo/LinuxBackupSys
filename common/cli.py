@@ -16,8 +16,9 @@ from common.core import BackupError, checked_path, history, load_config
 
 def parser():
     cli = argparse.ArgumentParser(description="Versioned rsync/SSH backups and verified file recovery")
-    cli.add_argument("--config", default="/etc/linux-backup/backup.conf", help="absolute TOML client config path")
+    cli.add_argument("--config", help="absolute TOML client config path (default: /etc/linux-backup/backup.conf)")
     sub = cli.add_subparsers(dest="command", required=True)
+    sub.add_parser("gui", help="open the desktop client")
     sub.add_parser("backup", help="back up configured source into a new snapshot")
     sub.add_parser("status", help="list completed snapshots and unfinished staging")
     restore = sub.add_parser("restore", help="restore into a NEW directory; existing destinations are refused")
@@ -26,6 +27,9 @@ def parser():
     restore.add_argument("--destination", help="absolute new directory under an existing parent")
     verify = sub.add_parser("verify", help="verify stored snapshot against its original manifest")
     verify.add_argument("snapshot_id")
+    browse = sub.add_parser("list-files", help="list direct children of a directory in a snapshot manifest")
+    browse.add_argument("snapshot_id")
+    browse.add_argument("--path", default=".", help="payload-relative directory (default: snapshot root)")
     cleanup = sub.add_parser("cleanup", help="show retention candidates; apply explicitly to delete")
     mode = cleanup.add_mutually_exclusive_group()
     mode.add_argument("--apply", action="store_true")
@@ -46,6 +50,16 @@ def main(argv=None):
     args = parser().parse_args(argv)
     os.umask(0o077)
     try:
+        if args.command == "gui":
+            try:
+                from client.desktop import launch
+            except ModuleNotFoundError as exc:
+                if exc.name not in ("tkinter", "_tkinter"):
+                    raise
+                raise BackupError("Giao diện cần Tk. Trên Ubuntu cài python3-tk, trên Arch cài tk.") from exc
+            return launch(args.config)
+        if args.config is None:
+            args.config = "/etc/linux-backup/backup.conf"
         if args.command == "configure":
             if args.output:
                 output = checked_path(args.output, exists=False)
@@ -64,10 +78,12 @@ def main(argv=None):
                 result = {"events": history(cfg["LOG_FILE"], args.limit, args.operation)}
             else:
                 options = {}
-                if args.command in ("restore", "verify"):
+                if args.command in ("restore", "verify", "list-files"):
                     options["snapshot_id"] = args.snapshot_id
                 if args.command == "restore":
                     options.update(path=args.path, destination=args.destination)
+                elif args.command == "list-files":
+                    options["path"] = args.path
                 elif args.command == "cleanup":
                     options["apply"] = args.apply
                 elif args.command == "history":

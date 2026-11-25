@@ -195,6 +195,17 @@ backup_cli=(bash /opt/linux-backup/backup-manager.sh --config "$demo_root/backup
 
 `configure --check` kiểm tra file cấu hình, còn `status` xác nhận CLI truy cập được kho Ubuntu qua SSH. Với kho mới, kết quả có `client_id` là `arch-tailnet-test` và danh sách `snapshots` rỗng.
 
+### Mở cấu hình thử trong giao diện đồ họa trên Arch
+
+Trong cùng phiên Bash trên máy Arch có desktop, cài Tk và đăng ký mục menu cho tài khoản đang giữ khóa SSH. Lệnh thứ hai dùng bản mã trong `/opt/linux-backup` ở bước 2 và đường dẫn cấu hình thử vừa tạo.
+
+```bash
+sudo pacman -S --needed tk
+python3 /opt/linux-backup/deploy/install-desktop.py --config "$demo_root/backup.conf"
+```
+
+Mở **LinuxBackupSys** từ menu ứng dụng. Bạn có thể sao lưu nguồn thử, chọn snapshot, kiểm tra SHA-256, khôi phục và xem lịch sử ngay trong cửa sổ này. Để thực hiện bài thử bên dưới bằng giao diện, vẫn sửa nội dung file thử giữa hai lần sao lưu, chọn đúng phiên 1 khi khôi phục và đối chiếu file ở đích trả về với bản mẫu. [Hướng dẫn dùng giao diện](setup.vi.md#giao-diện-trên-máy-khách)
+
 ## 5. Kiểm thử backup, verify và restore qua hai mạng
 
 Chạy các lệnh sau trên **Arch**. Tiếp tục từng bước sau khi lệnh trước thành công. Trường `snapshot_id` trong mỗi kết quả `backup` là ID cần nhập khi được hỏi.

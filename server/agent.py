@@ -23,7 +23,7 @@ from server.store import Store
 def session(store):
     request = receive(sys.stdin.buffer, store.cfg["TIMEOUT_SECONDS"])
     operation = request.get("operation")
-    if operation not in {"backup", "restore", "verify", "cleanup", "status", "history"}:
+    if operation not in {"backup", "restore", "verify", "list-files", "cleanup", "status", "history"}:
         raise BackupError("Unknown operation", 2)
     if request.get("client_id") != store.cfg["CLIENT_ID"]:
         raise BackupError("Client identity does not match server configuration", 2)
@@ -64,6 +64,16 @@ def session(store):
                 result = {"snapshot_id": snapshot_id, "verified": True, "path": selection}
             elif operation == "verify":
                 result = store.verify(snapshot_id)
+            elif operation == "list-files":
+                path, _ = store.snapshot(snapshot_id)
+                selection = relative_path(request.get("path", "."))
+                manifest, kind = subset(read_json(path / "manifest.json"), selection)
+                if kind != "dir":
+                    raise BackupError("Choose a directory in the snapshot", 2)
+                children = [{"name": name, "type": entry["type"]}
+                            for name, entry in manifest["entries"].items() if "/" not in name]
+                children.sort(key=lambda entry: (entry["type"] != "dir", entry["name"]))
+                result = {"path": selection, "entries": children}
             elif operation == "cleanup":
                 if type(request.get("apply", False)) is not bool:
                     raise BackupError("apply must be boolean", 2)
@@ -83,8 +93,8 @@ def session(store):
         except (BackupError, OSError, ValueError) as exc:
             # Metadata on disk remains authoritative if history/response fails
             # after rename. Retain staging for investigation after failures.
-            if snapshot_id and (store.snapshots / snapshot_id).is_dir():
-                published = operation == "backup"
+            if operation == "backup" and snapshot_id and (store.snapshots / check_id(snapshot_id)).is_dir():
+                published = True
             try:
                 store.event(run_id, operation, "failed", snapshot_id=snapshot_id,
                             published=published, error=str(exc))

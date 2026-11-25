@@ -19,6 +19,13 @@ verification. Only SSH is replaced by a local shell adapter, so these are **not*
 authentication or LAN tests. Assertions compare independent pre-backup manifests
 and expected bytes, and check retained snapshots and outside sentinels.
 
+For the desktop tests, use a graphical session with Python Tk, or run
+`xvfb-run -a bash tests/run.sh` on a headless Linux host with Tk, Xvfb and
+xauth installed. `test_desktop.py` drives native widgets with a fixture
+runner. It covers snapshot selection, browsing nested paths, restore and error
+handling. `test_desktop_config.py` saves configurations and reads them back
+through the CLI parser.
+
 Optional real SSH test, in a disposable root-controlled Ubuntu CI/VM with
 `openssh-server` already installed and `/run/sshd` prepared:
 
@@ -32,8 +39,19 @@ checks unknown-host and wrong-key failures. It does not modify global SSH config
 existing users, trusted hosts or keys. The root login permitted by this isolated
 test daemon is test-only; real deployment uses the dedicated non-root account.
 
-GitHub Actions is configured for Ubuntu 24.04, ShellCheck, the local suite and the
+GitHub Actions is configured for Ubuntu 24.04, ShellCheck, the local suite under Xvfb and the
 optional localhost SSH test. Adding the workflow is not evidence of a CI run.
+
+## Desktop verification (2026-11-25)
+
+On Ubuntu WSL, the native restore dialog was used to browse a nested directory
+in an older backup and restore a file with a Vietnamese name. The recovered
+bytes matched that version and the source retained the newer bytes. This test
+used the real CLI, server processes and rsync with a local adapter for SSH.
+A separate run exercised the desktop command runner through a temporary
+OpenSSH server on loopback, including backup, listing, verification, restore,
+history and retention preview. Testing over Tailscale between separate Arch and
+Ubuntu machines remains pending.
 
 ## Observed environment (2026-11-17)
 
@@ -46,7 +64,7 @@ optional localhost SSH test. Adding the workflow is not evidence of a CI run.
   validation; explicit deletion/ENOSPC failures are injected with mocks.
 - This is not a claim of two-machine Ubuntu 24.04 integration or a scheduled run.
 
-## Final verification results
+## Baseline verification results (2026-11-17)
 
 | Command/check | Actual result |
 | --- | --- |
@@ -79,7 +97,7 @@ those warnings. Neither check enabled a service or timer.
 | Restore | existing destination/source overlap/symlink/traversal refused, corrupt transfer cannot publish | Local workflows |
 | Retention | expiry boundary, newest-only, empty set, dry-run/apply match, staging untouched | Linux filesystem fixtures |
 | Cleanup failures | unexpected entries, symlink/sentinel, nested mount detection, deletion failure | Fixtures; mount/deletion error mocked |
-| SSH host/auth | temporary localhost sshd test supplied | SKIP locally: sshd unavailable |
+| SSH host/auth | backup/restore, unknown host key and wrong client key against temporary localhost sshd | Passed on Ubuntu WSL on 2026-11-25 |
 | ShellCheck | optional runner and required CI check | SKIP locally: tool unavailable |
 | Ubuntu 24.04 LAN | separate server/client with dedicated account | Pending target environment |
 | Timer and reboot | daily schedule, missed run, real job-user environment | Pending target deployment |

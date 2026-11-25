@@ -6,9 +6,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install test tools
-        run: sudo apt-get update && sudo apt-get install -y rsync openssh-server shellcheck
-      - name: Syntax, lint and isolated filesystem workflows
-        run: bash tests/run.sh
+        run: sudo apt-get update && sudo apt-get install -y rsync openssh-server shellcheck python3-tk xvfb xauth
+      - name: Syntax, lint, desktop UI and isolated filesystem workflows
+        run: |
+          export PATH="/usr/bin:$PATH"
+          xvfb-run -a python3 -c 'import tkinter; tkinter.Tk().destroy()'
+          xvfb-run -a bash tests/run.sh
       - name: Real SSH against a temporary localhost daemon
         run: |
           sudo install -d -m 0755 /run/sshd

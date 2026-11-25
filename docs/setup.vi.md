@@ -151,6 +151,27 @@ sha256sum "$demo_source/thu-nghiem.txt" "$restored_dir/thu-nghiem.txt"
 
 Hai mã SHA-256 phải giống nhau. Bỏ `--path` để khôi phục toàn bộ snapshot. Nếu dùng `--destination`, chọn một đường dẫn tuyệt đối chưa tồn tại và có thư mục cha sẵn. `cleanup --dry-run` cho xem ứng viên và lý do giữ hoặc xóa để bạn kiểm tra chính sách trước khi bật lịch.
 
+### Giao diện trên máy khách
+
+Trên **máy B**, đăng nhập phiên đồ họa bằng tài khoản có quyền đọc nguồn, khóa SSH, file `known_hosts` và cấu hình backup. Cài Tk một lần theo hệ điều hành.
+
+| Hệ điều hành máy B | Lệnh cài |
+| --- | --- |
+| Ubuntu | `sudo apt install python3-tk` |
+| Arch Linux | `sudo pacman -S --needed tk` |
+
+Từ thư mục gốc của checkout hoặc bản cài (ví dụ `/opt/linux-backup`), chạy lệnh sau bằng tài khoản desktop của bạn.
+
+```bash
+python3 deploy/install-desktop.py
+```
+
+1. Mở menu ứng dụng, tìm **LinuxBackupSys** và chọn file cấu hình client, chẳng hạn `/etc/linux-backup/backup.conf`. Nếu cần tạo cấu hình, điền biểu mẫu rồi lưu một bản mới. Dùng khóa SSH và kho server đã chuẩn bị ở các bước trên.
+2. Làm mới danh sách snapshot, bấm sao lưu và đợi thao tác hoàn tất. Chọn một phiên để kiểm tra SHA-256 hoặc khôi phục sang thư mục mới. Trong cửa sổ khôi phục, bấm **Duyệt phiên…** để chọn file hoặc thư mục đã sao lưu, hoặc để trống để lấy cả phiên. Kết quả hiển thị đường dẫn đích. Để duyệt file, máy chủ cần bản mã có lệnh `list-files`. Với máy chủ cũ, vẫn có thể nhập đường dẫn tương đối.
+3. Mở lịch sử để xem thao tác trên client hoặc server. Phần thời hạn lưu cho xem trước các snapshot mà chính sách cleanup sẽ giữ hoặc xóa. Lịch chạy tự động được thiết lập ở mục systemd bên dưới.
+
+Để mục menu luôn mở đúng cấu hình, chạy lại `python3 deploy/install-desktop.py --config /đường/dẫn/tuyệt/đối/backup.conf`. Menu dùng vị trí checkout hoặc bản cài hiện tại. Nếu di chuyển mã nguồn, chạy lại lệnh cài menu từ vị trí mới. Bạn cũng có thể mở trực tiếp bằng `bash backup-manager.sh --config /đường/dẫn/tuyệt/đối/backup.conf gui` trong phiên đồ họa.
+
 ## 5. Bật lịch systemd trên máy B
 
 Sau khi thử thành công, cập nhật `BACKUP_SOURCE` trong `/etc/linux-backup/backup.conf` thành đường dẫn cần sao lưu định kỳ. Service mẫu chạy backup, rồi áp dụng retention nếu backup thành công. Kiểm tra kết quả dry-run ở bước trước vì chạy thử service cũng có thể xóa snapshot hết hạn. Timer chạy lúc **09:00 giờ Việt Nam** mỗi ngày (`02:00 UTC`), với độ trễ ngẫu nhiên tối đa 5 phút. `Persistent=true` cho phép chạy bù khi timer hoạt động lại sau một lịch bị lỡ.

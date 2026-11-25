@@ -10,6 +10,8 @@ Start with [two-machine setup](docs/setup.md), [configuration and CLI](docs/conf
 
 [Hướng dẫn triển khai bằng tiếng Việt](docs/setup.vi.md)
 
+On a Linux client with a graphical desktop, open **LinuxBackupSys** from the applications menu to back up, browse snapshots, verify or restore files, read history and preview retention. Install the optional Tk package and menu entry once under the account that runs backups. [Desktop setup](docs/setup.md#desktop-client)
+
 ```bash
 # On Linux, from the checkout:
 bash backup-manager.sh --help
