@@ -10,7 +10,7 @@ Bắt đầu với [hướng dẫn triển khai bằng tiếng Việt](docs/setu
 
 Nếu bạn chỉ có một máy ảo Arch Linux trong VirtualBox, có thể thử sao lưu và khôi phục bằng giao diện qua SSH nội bộ. [Chạy thử trên một máy Arch](docs/setup-arch-local.vi.md)
 
-Nếu máy chủ Ubuntu và máy khách Arch ở hai mạng Internet khác nhau, dùng [hướng dẫn cài Tailscale và kiểm thử Ubuntu–Arch](docs/setup-tailscale.vi.md).
+Nếu hai bạn ở khác mạng và lần đầu chạy dự án, hãy mở [bài thực hành cho hai người trên Ubuntu và máy ảo Arch Linux](docs/lab-ubuntu-arch-virtualbox.vi.md). Bài hướng dẫn từ lúc clone đến khi đối chiếu tệp khôi phục. [Tài liệu triển khai qua Tailscale](docs/setup-tailscale.vi.md) có thêm cách cài gói và kiểm tra chính sách lưu giữ.
 
 Trên máy khách có môi trường đồ họa, bạn có thể mở **LinuxBackupSys** từ menu ứng dụng để sao lưu, chọn phiên khôi phục, kiểm tra SHA-256, xem lịch sử và xem trước danh sách hết hạn. [Cài giao diện trên máy khách](docs/setup.vi.md#giao-diện-trên-máy-khách)
 
